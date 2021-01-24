@@ -1,8 +1,7 @@
 # ruby-install
 
-[![Build Status](https://travis-ci.org/postmodern/ruby-install.svg?branch=master)](https://travis-ci.org/postmodern/ruby-install)
-
-Installs [Ruby], [JRuby], [Rubinius], [TruffleRuby] or [mruby].
+Installs [Ruby], [JRuby], [Rubinius], [TruffleRuby] (native / GraalVM), or
+[mruby].
 
 ## Features
 
@@ -16,7 +15,8 @@ Installs [Ruby], [JRuby], [Rubinius], [TruffleRuby] or [mruby].
 * Supports downloading/applying patches.
 * Supports specifying arbitrary `./configure` options.
 * Supports downloading archives using `wget` or `curl`.
-* Supports verifying downloaded archives using `md5sum`, `md5` or `openssl md5`.
+* Supports verifying downloaded archives via MD5, SHA1, SHA256 or SHA512
+  checksums.
 * Supports installing build dependencies via the package manager:
   * [apt]
   * [dnf]
@@ -33,12 +33,16 @@ Installs [Ruby], [JRuby], [Rubinius], [TruffleRuby] or [mruby].
 * Does not require updating every time a new Ruby version comes out.
 * Does not require recipes for each individual Ruby version or configuration.
 * Does not support installing trunk/HEAD.
+* Does not support installing unsupported/unmaintained versions of Ruby.
 
 ## Requirements
 
 * [bash] >= 3.x
 * [wget] > 1.12 or [curl]
-* `md5sum`, `md5` or `openssl md5`.
+* `md5sum` or `md5`
+* `sha1sum` or `sha1`
+* `sha256sum` or `sha256`
+* `sha512sum` or `sha512`
 * `tar`
 * `bzip2`
 * `patch` (if `--patch` is specified)
@@ -124,9 +128,9 @@ ruby-install can even be used with [Chef].
 
 ## Install
 
-    wget -O ruby-install-0.7.0.tar.gz https://github.com/postmodern/ruby-install/archive/v0.7.0.tar.gz
-    tar -xzvf ruby-install-0.7.0.tar.gz
-    cd ruby-install-0.7.0/
+    wget -O ruby-install-0.8.1.tar.gz https://github.com/postmodern/ruby-install/archive/v0.8.1.tar.gz
+    tar -xzvf ruby-install-0.8.1.tar.gz
+    cd ruby-install-0.8.1/
     sudo make install
 
 ### PGP
@@ -135,8 +139,8 @@ All releases are [PGP] signed for security. Instructions on how to import my
 PGP key can be found on my [blog][1]. To verify that a release was not tampered
 with:
 
-    wget https://raw.github.com/postmodern/ruby-install/master/pkg/ruby-install-0.7.0.tar.gz.asc
-    gpg --verify ruby-install-0.7.0.tar.gz.asc ruby-install-0.7.0.tar.gz
+    wget https://raw.github.com/postmodern/ruby-install/master/pkg/ruby-install-0.8.1.tar.gz.asc
+    gpg --verify ruby-install-0.8.1.tar.gz.asc ruby-install-0.8.1.tar.gz
 
 ### Homebrew
 
@@ -156,7 +160,7 @@ ruby-install is already included in the [AUR]:
 
 ### Fedora Linux
 
-ruby-install is available on [Fedora Copr](https://copr.fedorainfracloud.org/coprs/postmodern/ruby-install/).
+ruby-install is available on [Fedora Copr](https://copr.fedorainfracloud.org/coprs/duritong/chruby/).
 
 ### FreeBSD
 
@@ -165,23 +169,7 @@ ports tree.
 
 ## Known Issues
 
-### Ruby
-
-Rubies older than 1.9.3-p429 will not compile with [Clang][clang] and require
-[GCC][gcc] >= 4.2. Normally, Linux and BSD systems will already have GCC
-installed. OS X users can install GCC via [homebrew]:
-
-    brew tap homebrew/versions
-    brew install gcc49
-
-And run ruby-install again:
-
-    ruby-install ruby 2.4.0 -- CC=gcc-4.9
-
-### Rubinius
-
-[Rubinius] 1.x and 2.0.x is not supported due to multiple bugs.
-Instead, please use Rubinius >= 2.1.x.
+Please see the [wiki](https://github.com/postmodern/ruby-install/wiki/Known-Issues).
 
 ## Alternatives
 

@@ -1,66 +1,5 @@
 #!/usr/bin/env bash
 
-source "$ruby_install_dir/package_manager.sh"
-
-#
-# Auto-detect the downloader.
-#
-if   command -v wget >/dev/null; then downloader="wget"
-elif command -v curl >/dev/null; then downloader="curl"
-fi
-
-#
-# Don't use sudo if already root.
-#
-if (( UID == 0 )); then sudo=""
-else                    sudo="sudo"
-fi
-
-#
-# Prints a log message.
-#
-function log()
-{
-	if [[ -t 1 ]]; then
-		echo -e "\x1b[1m\x1b[32m>>>\x1b[0m \x1b[1m$1\x1b[0m"
-	else
-		echo ">>> $1"
-	fi
-}
-
-#
-# Prints a warn message.
-#
-function warn()
-{
-	if [[ -t 1 ]]; then
-		echo -e "\x1b[1m\x1b[33m***\x1b[0m \x1b[1m$1\x1b[0m" >&2
-	else
-		echo "*** $1" >&2
-	fi
-}
-
-#
-# Prints an error message.
-#
-function error()
-{
-	if [[ -t 1 ]]; then
-		echo -e "\x1b[1m\x1b[31m!!!\x1b[0m \x1b[1m$1\x1b[0m" >&2
-	else
-		echo "!!! $1" >&2
-	fi
-}
-
-#
-# Prints an error message and exists with -1.
-#
-function fail()
-{
-	error "$@"
-	exit -1
-}
-
 #
 # Searches a file for a key and echos the value.
 # Nothing is returned if the key cannot be found.
@@ -106,52 +45,35 @@ function download()
 #
 # Extracts an archive.
 #
+
 function extract()
 {
-	local archive="$1"
-	local dest="${2:-${archive%/*}}"
-	local extra_args="$3"
+        local archive="$1"
+        local dest="${2:-${archive%/*}}"
+        local extra_args="$3"
 
-	case "$archive" in
+        case "$archive" in
                *.tar.xz) tar -xf "$archive" -C "$dest" "$extra_args" || return $? ;;
 
-		*.tgz|*.tar.gz) tar -xzf "$archive" -C "$dest" "$extra_args" || return $? ;;
-		*.tbz|*.tbz2|*.tar.bz2)	tar -xjf "$archive" -C "$dest" "$extra_args" || return $? ;;
-		*.zip) unzip "$archive" -d "$dest" || return $? ;;
-		*)
-			error "Unknown archive format: $archive"
-			return 1
-			;;
-	esac
+                *.tgz|*.tar.gz) tar -xzf "$archive" -C "$dest" "$extra_args" || return $? ;;
+                *.tbz|*.tbz2|*.tar.bz2) tar -xjf "$archive" -C "$dest" "$extra_args" || return $? ;;
+                *.zip) unzip "$archive" -d "$dest" || return $? ;;
+                *)
+                        error "Unknown archive format: $archive"
+                        return 1
+                        ;;
+        esac
 }
 
-#
-# Returns the executing platform.
-#
-function platform()
-{
-	local uname="$(uname)"
-	case "$uname" in
-		Linux) echo linux ;;
-		Darwin) echo macos ;;
-		*)
-			error "unknown platform $uname"
-			return 1
-			;;
-	esac
-}
 
 #
-# Returns the CPU architecture.
+# Copies files from within a source directory into a destination directory.
 #
-function architecture()
+function copy_into()
 {
-	local arch="$(uname -m)"
-	case "$arch" in
-		x86_64) echo amd64 ;;
-		*)
-			error "unknown architecture $arch"
-			return 1
-			;;
-	esac
+	local src="$1"
+	local dest="$2"
+
+	mkdir -p "$dest" || return $?
+	cp -R "$src"/* "$dest" || return $?
 }

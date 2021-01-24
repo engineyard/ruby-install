@@ -1,6 +1,53 @@
+### 0.8.1 / 2020-12-20
+
+* Fixed a bug where `detect_package_manager()` was not detecting the package
+  manager because `$os_platform` not yet set.
+
+### 0.8.0 / 2020-12-09
+
+* Added support for [truffleruby-graalvm][truffleruby].
+* Added support for extracting `.tar.xz` files using `xz-utils`.
+* Improve package-manager detection by making it OS/distro aware.
+* Fixed a bug when parsing `-jJOBS`, `-jobs=JOBS`, and `--jobs JOBS` options.
+* Support passing a single `RUBY-VERSION` or `VERSION` argument to
+  `ruby-install`.
+
+      $ ruby-install ruby-3.0.0-preview2
+
+      $ ruby-install 3.0.0-preview2
+
+#### ruby
+
+* Added `xz-utils` as a dependency.
+* Default to downloading the `.tar.xz` release.
+
+#### jruby
+
+* Fixed a bug when reinstalling into a pre-existing installation directory.
+
+#### rbx
+
+* Added `bzip2` as a [yum] dependency for RHEL/CentOS.
+* Updated the [apt] dependencies.
+
+#### truffleruby
+
+* Fixed a bug when reinstalling into a pre-existing installation directory.
+
+### 0.7.1 / 2020-07-22
+
+* `Makefile` corrections:
+  * Make `SHARE_DIR` and `DOC_DIR` respect `PREFIX`.
+  * Do not attempt `rmdir $SHARE_DIR` which will always fail.
+
+#### truffleruby
+
+* Remove `llvm` from the dependencies (@eregon).
+  * [truffleruby] >= 19.3 now uses an internal LLVM toolchain.
+
 ### 0.7.0 / 2018-08-04
 
-* Added support for [TruffleRuby].
+* Added support for [truffleruby].
 * Added a `--package-manager` option for explicitly selecting the desired
   package manager.
 * Added support for FreeBSD's `pkg` package manager.
@@ -345,6 +392,6 @@
 [Rubinius]: http://rubini.us/
 [MagLev]: http://maglev.github.io/
 [MRuby]: https://github.com/mruby/mruby#readme
-[TruffleRuby]: https://github.com/oracle/truffleruby#readme
+[truffleruby]: https://github.com/oracle/truffleruby#readme
 
 [ruby-versions]: https://github.com/postmodern/ruby-versions#readme

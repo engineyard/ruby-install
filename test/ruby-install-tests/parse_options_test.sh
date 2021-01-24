@@ -95,16 +95,25 @@ function test_parse_options_with_src_dir()
 	assertEquals "did not set \$src_dir" "$expected" "$src_dir"
 }
 
-function test_parse_options_with_jobs()
+function test_parse_options_with_jobs_with_an_argument()
 {
-	local expected="--jobs"
+	local expected=(--jobs 1)
+
+	parse_options "${expected[@]}" "ruby"
+
+	assertEquals "did not set \$make_opts" "${expected[*]}" "${make_opts[*]}"
+}
+
+function test_parse_options_with_jobs_as_single_option()
+{
+	local expected="-j4"
 
 	parse_options "$expected" "ruby"
 
 	assertEquals "did not set \$make_opts" "$expected" "${make_opts[0]}"
 }
 
-function test_parse_options_with_jobs_and_arguments()
+function test_parse_options_with_jobs_with_equals()
 {
 	local expected="--jobs=4"
 
@@ -134,11 +143,13 @@ function test_parse_options_with_mirror()
 
 function test_parse_options_with_url()
 {
-	local url="http://mirror.s3.amazonaws.com/downloads/ruby-1.2.3.tar.gz"
+	local archive="ruby-1.2.3.tar.gz"
+	local url="http://mirror.s3.amazonaws.com/downloads/$archive"
 
 	parse_options "--url" "$url" "ruby"
 
 	assertEquals "did not set \$ruby_url" "$url" "$ruby_url"
+	assertEquals "did not also set \$ruby_archive" "$archive" "$ruby_archive"
 }
 
 function test_parse_options_with_md5()
