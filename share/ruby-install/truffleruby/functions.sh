@@ -1,10 +1,18 @@
 #!/usr/bin/env bash
 
-platform=$(platform) || return $?
-arch=$(architecture) || return $?
+case "$os_platform" in
+	Linux)	truffleruby_platform="linux" ;;
+	Darwin)	truffleruby_platform="macos" ;;
+	*)	fail "Unsupported platform $os_platform" ;;
+esac
 
-ruby_dir_name="truffleruby-$ruby_version-$platform-$arch"
-ruby_archive="$ruby_dir_name.tar.gz"
+case "$os_arch" in
+	x86_64)	truffleruby_arch="amd64" ;;
+	*)	fail "Unsupported platform $os_arch" ;;
+esac
+
+ruby_dir_name="truffleruby-$ruby_version-$truffleruby_platform-$truffleruby_arch"
+ruby_archive="${ruby_archive:-$ruby_dir_name.tar.gz}"
 ruby_mirror="${ruby_mirror:-https://github.com/oracle/truffleruby/releases/download}"
 ruby_url="${ruby_url:-$ruby_mirror/vm-$ruby_version/$ruby_archive}"
 
@@ -14,7 +22,7 @@ ruby_url="${ruby_url:-$ruby_mirror/vm-$ruby_version/$ruby_archive}"
 function install_ruby()
 {
 	log "Installing truffleruby $ruby_version ..."
-	cp -R "$src_dir/$ruby_dir_name" "$install_dir" || return $?
+	copy_into "$src_dir/$ruby_dir_name" "$install_dir" || return $?
 }
 
 #

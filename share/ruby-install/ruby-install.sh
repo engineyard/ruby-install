@@ -2,11 +2,11 @@
 
 shopt -s extglob
 
-ruby_install_version="0.7.0"
+ruby_install_version="0.8.1"
 ruby_install_dir="${BASH_SOURCE[0]%/*}"
 ruby_install_cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/ruby-install"
 
-rubies=(ruby jruby rbx truffleruby mruby rubyjemalloc)
+rubies=(ruby jruby rbx truffleruby truffleruby-graalvm mruby rubyjemalloc)
 patches=()
 configure_opts=()
 make_opts=()
@@ -21,6 +21,9 @@ else
 	rubies_dir="$HOME/.rubies"
 fi
 
+source "$ruby_install_dir/logging.sh"
+source "$ruby_install_dir/system.sh"
+source "$ruby_install_dir/package_manager.sh"
 source "$ruby_install_dir/util.sh"
 source "$ruby_install_dir/ruby-versions.sh"
 
@@ -30,7 +33,7 @@ source "$ruby_install_dir/ruby-versions.sh"
 function usage()
 {
 	cat <<USAGE
-usage: ruby-install [OPTIONS] [RUBY [VERSION] [-- CONFIGURE_OPTS ...]]
+usage: ruby-install [OPTIONS] [[RUBY|VERSION|RUBY-VERSION] [-- CONFIGURE_OPTS ...]]
 
 Options:
 
@@ -40,7 +43,7 @@ Options:
 	    --system		Alias for -i $system_dir
 	-s, --src-dir DIR	Directory to download source-code into
 	-c, --cleanup		Remove archive and unpacked source-code after installation
-	-j, --jobs JOBS		Number of jobs to run in parallel when compiling
+	-j[JOBS], --jobs[=JOBS]	Number of jobs to run in parallel when compiling
 	-p, --patch FILE	Patch to apply to the Ruby source-code
 	-M, --mirror URL	Alternate mirror to download the Ruby archive from
 	-u, --url URL		Alternate URL to download the Ruby archive from
@@ -77,23 +80,21 @@ USAGE
 #
 function parse_ruby()
 {
-	local arg="$1"
+	local string="$1"
 
-	case "$arg" in
-		*-*)
-			ruby="${arg%%-*}"
-			ruby_version="${arg#*-}"
+	case "$string" in
+		*-[0-9]*)
+			ruby="${string%-[0-9]*}"
+			ruby_version="${string#$ruby-}"
+			;;
+		[0-9]*)
+			ruby="ruby"
+			ruby_version="$string"
 			;;
 		*)
-			ruby="${arg}"
-			ruby_version=""
+			ruby="$string"
 			;;
 	esac
-
-	if [[ ! "${rubies[@]}" == *"$ruby"* ]]; then
-		error "Unknown ruby: $ruby"
-		return 1
-	fi
 }
 
 #
@@ -104,7 +105,7 @@ function parse_options()
 	local argv=()
 
 	while [[ $# -gt 0 ]]; do
-		case $1 in
+		case "$1" in
 			-r|--rubies-dir)
 				rubies_dir="$2"
 				shift 2
@@ -125,7 +126,11 @@ function parse_options()
 				cleanup=1
 				shift
 				;;
-			-j|--jobs|-j+([0-9])|--jobs=+([0-9]))
+			-j|--jobs)
+				make_opts+=("$1" "$2")
+				shift 2
+				;;
+			-j+([0-9])|--jobs=+([0-9]))
 				make_opts+=("$1")
 				shift
 				;;
@@ -139,6 +144,7 @@ function parse_options()
 				;;
 			-u|--url)
 				ruby_url="$2"
+				ruby_archive="${ruby_url##*/}"
 				shift 2
 				;;
 			-m|--md5)
@@ -250,6 +256,11 @@ function list_rubies()
 #
 function init()
 {
+	if [[ ! "${rubies[*]}" == *"$ruby"* ]]; then
+		error "Unknown ruby: $ruby"
+		return 1
+	fi
+
 	local fully_qualified_version="$(lookup_ruby_version "$ruby" "$ruby_version")"
 
 	if [[ -n "$fully_qualified_version" ]]; then

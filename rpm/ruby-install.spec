@@ -1,12 +1,12 @@
 %define name ruby-install
-%define version 0.7.0
+%define version 0.8.1
 %define release 1
 
 %define buildroot %{_topdir}/BUILDROOT
 
 BuildRoot: %{buildroot}
 Source0: https://github.com/postmodern/%{name}/archive/v%{version}.tar.gz
-Summary: Installs Ruby, JRuby, Rubinius, TruffleRuby or mruby
+Summary: Installs Ruby, JRuby, Rubinius, TruffleRuby, or mruby
 Name: %{name}
 Version: %{version}
 Release: %{release}
@@ -36,6 +36,15 @@ make install PREFIX=%{buildroot}/usr
 %{_defaultdocdir}/%{name}-%{version}/*
 
 %changelog
+* Sun Dec 20 2020 Postmodern <postmodern.mod3@gmail.com> - 0.8.1-1
+- Rebuilt for version 0.8.1.
+
+* Wed Dec 09 2020 Postmodern <postmodern.mod3@gmail.com> - 0.8.0-1
+- Rebuilt for version 0.8.0.
+
+* Wed Jul 22 2020 Postmodern <postmodern.mod3@gmail.com> - 0.7.1-1
+- Rebuilt for version 0.7.1.
+
 * Sat Aug 04 2018 Postmodern <postmodern.mod3@gmail.com> - 0.7.0-1
 - Rebuilt for version 0.7.0.
 
